@@ -2,7 +2,7 @@
 :- use_module(library(clpfd)).
 :- use_module(library(apply)).
 :- use_module(library(lists)).
-
+:- use_module(library(ordsets)).
 
 
 first(tuple(X, _), X).
@@ -108,7 +108,8 @@ move(Old, New) :-
 % ---------------- SEARCH ALGORITHM ------------------
 
 bfs(Start, Path) :-
-    bfs_queue([[Start]], [], Path).
+    empty_assoc(Visited),
+    bfs_queue([[Start]], Visited, Path).
 
 % in case the solution is found, bfs returns
 bfs_queue([[Node|NPath]|_], _, Path) :-
@@ -117,14 +118,55 @@ bfs_queue([[Node|NPath]|_], _, Path) :-
 
 % Solution not found, generate more nodes
 bfs_queue([[Node|NPath]|Rest], Visited, Path) :-
-    findall(NewMove, (move(Node, NewMove), \+ member(NewMove, Visited)), NewMoves),
-    append(Visited, NewMoves, NewVisited),
-    maplist(list([Node|NPath]), NewMoves, NewMovesWithPaths),
+    findall(NewMove, (move(Node, NewMove), \+ get_assoc(NewMove, Visited, _)), NewMoves),
+    append_assoc(Visited, NewMoves, NewVisited),
+    add_paths(NewMoves, [Node|NPath], NewMovesWithPaths),
     append(Rest, NewMovesWithPaths, Queue),
     bfs_queue(Queue, NewVisited, Path).
 
-list(T, H, [H|T]).
+append_assoc(Assoc, [], Assoc).
+append_assoc(Old, [H|T], New) :-
+    put_assoc(H, Old, true, Updated),
+    append_assoc(Updated, T, New).
 
+add_paths([], _, []).
+add_paths([H|T], Path, [[H|Path]|TPath]) :-
+    add_paths(T, Path, TPath).
+
+ids(Start, Path) :-
+    empty_assoc(Visited),
+    ids_helper([[Start]], 1, Visited, [], Path).
+
+ids_helper([[Node|NPath]|_], _, _, _, Path) :-
+    solved_tower(Node),
+    reverse([Node|NPath], Path).
+
+% Solution not found, generate more nodes
+ids_helper([[Node|NPath]|Rest], Limit, Visited, Unexplored, Path) :-
+    length(NPath, Depth),
+    Depth < Limit,
+    findall(NewMove, (move(Node, NewMove), \+ get_assoc(NewMove, Visited, _)), NewMoves),
+    append_assoc(Visited, NewMoves, NewVisited),
+    add_paths(NewMoves, [Node|NPath], NewMovesWithPaths),
+    prepend(Rest, NewMovesWithPaths, Stack),
+    ids_helper(Stack, Limit, NewVisited, Unexplored, Path).
+
+% Solution not found, node is too deep, move onto the next one
+ids_helper([[Node|NPath]|Rest], Limit, Visited, Unexplored, Path) :-
+    length(NPath, Depth),
+    Depth >= Limit,
+    Unexplored0 = [[Node|NPath]|Unexplored],
+    ids_helper(Rest, Limit, Visited, Unexplored0, Path).
+
+% Stack is empty, but we can increase depth
+ids_helper([], Limit, Visited, Unexplored, Path) :-
+    Unexplored \= [],
+    NewLimit is Limit + 1,
+    write(user_error, "Starting search with limit = "), writeln(user_error, NewLimit),
+    ids_helper(Unexplored, NewLimit, Visited, [], Path).
+
+prepend(List, [], List).
+prepend(List, [H|T], New) :- prepend([H|List], T, New).
 
 % --------------------- IO -------------------------
 
@@ -161,15 +203,12 @@ print_tower(Tower) :-
 % ------------------ MAIN ---------------------------
 
 start :-
-    read_tower(Initial),
-    legal_tower(Initial),
-    bfs(Initial, Path),
-    maplist(print_tower, Path),
-    halt.
-
-start :-
-    writeln("This tower is illegal or has no solution."),
-    halt.
+    read_tower(Initial), !,
+    (legal_tower(Initial) ->
+        (ids(Initial, Path) ->
+            (maplist(print_tower, Path), halt) ;
+            writeln(user_error, "No solution found."), fail) ;
+        writeln(user_error, "Illegal tower."), fail).
 
 % ----------------- Testing predicates ------------------
 
@@ -190,10 +229,3 @@ list_moves :-
     findall(NewMove, move(Initial, NewMove), NewMoves),
     maplist(print_tower, NewMoves),
     halt.
-
-solve_ex_d3 :-
-    Tower = [[tuple(1,1),tuple(1,2),tuple(1,3),tuple(1,4),tuple(1,5),tuple(1,6)],[tuple(2,3),tuple(2,4),tuple(2,5),tuple(2,6),empty,tuple(2,2)],[tuple(2,1),tuple(3,2),tuple(3,3),tuple(3,4),tuple(3,5),tuple(3,6)],[tuple(3,1),tuple(4,2),tuple(4,3),tuple(4,4),tuple(4,5),tuple(4,6)]],
-    bfs(Tower, _).
-
-
-
