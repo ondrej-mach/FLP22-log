@@ -162,7 +162,9 @@ ids_helper([[Node|NPath]|Rest], Limit, Visited, Unexplored, Path) :-
 ids_helper([], Limit, Visited, Unexplored, Path) :-
     Unexplored \= [],
     NewLimit is Limit + 1,
-    write(user_error, "Starting search with limit = "), writeln(user_error, NewLimit),
+%    write(user_error, "Starting search with limit = "),
+%    write(user_error, NewLimit),
+%    nl(user_error),
     ids_helper(Unexplored, NewLimit, Visited, [], Path).
 
 prepend(List, [], List).
@@ -207,8 +209,8 @@ start :-
     (legal_tower(Initial) ->
         (ids(Initial, Path) ->
             (maplist(print_tower, Path), halt) ;
-            writeln(user_error, "No solution found."), fail) ;
-        writeln(user_error, "Illegal tower."), fail).
+            write(user_error, "No solution found."), nl(user_error), fail) ;
+        write(user_error, "Illegal tower."), nl(user_error), fail).
 
 % ----------------- Testing predicates ------------------
 
