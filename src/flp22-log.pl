@@ -1,9 +1,12 @@
+:- set_prolog_flag(stack_limit, 16 000 000 000).
+
 :- use_module(input2).
 :- use_module(library(clpfd)).
 :- use_module(library(apply)).
 :- use_module(library(lists)).
 :- use_module(library(ordsets)).
 
+prompt(_, '').
 
 first(tuple(X, _), X).
 first(empty, inf).
