@@ -4,8 +4,6 @@
 :- use_module(library(lists)).
 :- use_module(library(ordsets)).
 
-prompt(_, '').
-
 first(tuple(X, _), X).
 first(empty, inf).
 second(tuple(_, Y), Y).
@@ -206,6 +204,7 @@ print_tower(Tower) :-
 % ------------------ MAIN ---------------------------
 
 start :-
+    prompt(_, ''),
     read_tower(Initial), !,
     (legal_tower(Initial) ->
         (ids(Initial, Path) ->
