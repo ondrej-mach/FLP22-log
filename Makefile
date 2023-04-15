@@ -1,5 +1,5 @@
 all:
-	swipl -q -nodebug -g start -o flp22-log -c src/flp22-log.pl
+	swipl -q -nodebug -G16g -g start -o flp22-log -c src/flp22-log.pl || swipl -q -nodebug --stack_limit=16g -g start -o flp22-log -c src/flp22-log.pl
 
 .PHONY: test
 test:

@@ -81,7 +81,9 @@ Testovány byly knihovny `ordsets` a `assoc`.
 Zatímco `ordsets` nijak nezlepšila výkon (zřejmě kvůli častému vkládání), asociativní pole zrychlilo implementaci řádově.
 Důvodem je, že `assoc` interně používá AVL stromy, proto má komplexitu vkládání i vyhledávání logaritmickou.
 
-Poté už bylo možné vyřešit referenční úlohu, program běžel 1min 44s, a spotřeboval maximálně 2.4 GB RAM.
+Poté už bylo možné vyřešit referenční úlohu.
+Program běžel 1min 51s na referenčním serveru merlin.
+Maximální využití paměti (Maximum resident set size) bylo 925 MB.
 
 ```
 $ ./flp22-log < test/spec_example.in

@@ -1,6 +1,3 @@
-% deprecated but needed to run on reference machine
-:- set_prolog_stack(global, limit(16 000 000 000)).
-
 :- use_module(input2).
 :- use_module(library(clpfd)).
 :- use_module(library(apply)).
