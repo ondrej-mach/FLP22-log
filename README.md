@@ -6,7 +6,7 @@ Tento projekt implementuje řešení Babylonské věže v jazyce Prolog.
 Program se chová podle zadání, implementace je schopná vyřešit zadaný příklad.
 Implementace využívá algoritmu IDS (Iterative Depth Search) pro prohledávání stavového prostoru.
 
-# Datová struktura pro věž
+### Datová struktura pro věž
 
 Věž je interně reprezentována jako matice, která je tvořena seznamem seznamů.
 Vnořené seznamy představují řádky matice.
@@ -16,6 +16,7 @@ Pro ilustraci je datová struktura předvedena na jednoduchém příkladu.
 
 ```
 $ cat test/easy.in
+
 B1 B2
 ** A1
 ```
@@ -24,6 +25,7 @@ Zdrojový soubor také obsahuje debugovací predikát `read_and_write/0`, který
 
 ```
 $ swipl -g 'read_and_write' -s src/flp22-log.pl < test/easy.in
+
 [[tuple(1,2),tuple(2,2)],[empty,tuple(1,1)]]
 ```
 
@@ -38,16 +40,23 @@ Jednoduchý test vstupu a výstupu lze spustit příkazem `make test`.
 swipl -g read_and_print -s src/flp22-log.pl < test/spec_example.in
 ```
 
-# Pravidla pro manipulaci věže
+### Pravidla pro manipulaci věže
 
 Legální tahy věže jsou definovány predikátem `move/2`.
-Ten je implementován ve dvou klauzulích.
-První představuje rotaci patra věže, zatímco druhá představuje vertikální posun kuliček ve sloupci s volným místem.
+Predikát `move` je definován dvěma klauzulemi, jedna generuje horizontální rotace a druhá vertikální posuny věže.
+Rotace může v jednom tahu otočit vždy jedno patro věže, čímž se  mírně liší od zadání.
+Množina dosažitelných stavů je ale stejná a výstupem programu je také vždy validní řešení.
+Při věži o M řádcích a N sloupcích tato klauzule vygeneruje vždy M*(N-1) tahů.
+Vertikální posun spočívá v přesunutí volného místa na jakékoli jiné místo v daném sloupci.
+U věže M*N je vygenerováno N-1 možností.
+Klauzule jsou napsány tak, aby současný stav věže nikdy nebyl mezi možnými tahy.
+
 Predikát `move` je dále využit v prohledávání stavového prostoru.
 Pro ladící účely obsahuje zdrojový kód predikát `list_moves/0`, který načte věž ze stdin a vypíše všechny legální tahy.
 
 ```
 $ swipl -g 'list_moves' -s src/flp22-log.pl < test/easy.in
+
 B2 B1
 ** A1
 
@@ -58,12 +67,12 @@ A1 **
 B1 A1
 ```
 
-# Prohledávací algoritmus
+### Prohledávací algoritmus
 
 Vyhledávací algoritmus byl původně implementován jako BFS (Breadth First Search).
 Toto řešení bylo dostatečné pro malé stavové prostory.
 Pro zadání s větším stavovým prostorem už ale nefungovalo kvůli paměťové náročnosti.
-Např. na referenční věž v zadání bylo využito přes 25 GB RAM a stále nebyla spočítána.
+Např. na referenční věž v zadání bylo využito přes 25 GB RAM a stále nebyla úspěšně spočítána.
 
 Proto bylo potřeba najít nový algoritmus.
 Nejprve byl implementován DLS (Depth Limited Search).
@@ -87,6 +96,7 @@ Maximální využití paměti (Maximum resident set size) bylo 925 MB.
 
 ```
 $ ./flp22-log < test/spec_example.in
+
 D1 E1 F1 A1 B1 C1
 F2 E3 B2 C2 D2 E2
 D3 E4 F3 A2 B3 C3

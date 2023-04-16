@@ -1,6 +1,9 @@
 all:
 	swipl -q -nodebug -G16g -g start -o flp22-log -c src/flp22-log.pl || swipl -q -nodebug --stack_limit=16g -g start -o flp22-log -c src/flp22-log.pl
 
+README.pdf:
+	pandoc -s -o README.pdf -V geometry:margin=25mm -V lang:cs -V papersize:a4 README.md
+
 .PHONY: test
 test:
 	# Test if IO works correctly
